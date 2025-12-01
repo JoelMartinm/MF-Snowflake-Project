@@ -7,6 +7,7 @@ Purpose     : This script creates all the required tables in the 'bronze' schema
                - Store source data with minimal transformations.
                - Serve as a foundation for downstream cleansing, modelling, and analytics via the
                  Silver and Gold layers.
+CALL CREATE_BRONZE_TABLES();
 **************************************************************************************************/
 
 CREATE OR REPLACE PROCEDURE CREATE_BRONZE_TABLES()
