@@ -29,7 +29,7 @@ BEGIN
 
     -- PRODUCT
     COPY INTO MF_DWH.BRONZE.PRODUCT
-    FROM @MF_STAGE/product.csv
+    FROM @MF_STAGE/products.csv
     ON_ERROR = 'CONTINUE';
 
     -- PRODUCTSTOCKS
@@ -69,12 +69,12 @@ BEGIN
 
     -- DELIVERY_LOCATION
     COPY INTO MF_DWH.BRONZE.DELIVERY_LOCATION
-    FROM @MF_STAGE/deliverylocation.csv
+    FROM @MF_STAGE/deliverylocations.csv
     ON_ERROR = 'CONTINUE';
 
     -- DELIVERY_SLOT
     COPY INTO MF_DWH.BRONZE.DELIVERY_SLOT
-    FROM @MF_STAGE/deliveryslot.csv
+    FROM @MF_STAGE/deliveryslots.csv
     ON_ERROR = 'CONTINUE';
 
     RETURN 'Bronze load complete';
