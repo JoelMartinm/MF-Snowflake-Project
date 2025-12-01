@@ -1,3 +1,14 @@
+/**************************************************************************************************
+Purpose     : This script creates all the required tables in the 'bronze' schema for the 
+               Snowflake project. Tables are loaded as-is from the internal stage (CSV files), 
+               forming the Bronze Layer (raw data).
+               
+               The purpose of this layer is to:
+               - Store source data with minimal transformations.
+               - Serve as a foundation for downstream cleansing, modelling, and analytics via the
+                 Silver and Gold layers.
+**************************************************************************************************/
+
 CREATE OR REPLACE PROCEDURE CREATE_BRONZE_TABLES()
 RETURNS STRING
 LANGUAGE SQL
@@ -302,7 +313,7 @@ BEGIN
         DELIVERYLOCATIONID NUMBER,
         DELIVERYLOCATIONSUPPLIERID NUMBER,
         DELIVERYLOCATIONPINCODE VARCHAR,
-        DELIVERYLOCATIONDISTRICTID NUMBER,
+        DELIVERYLOCATIONDISTRICTIDNUMBER,
         DELIVERYLOCATIONSTATEID NUMBER,
         DELIVERYLOCATIONADDEDON TIMESTAMP_NTZ,
         DELIVERYLOCATIONROUTEID NUMBER,
