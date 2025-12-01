@@ -7,7 +7,7 @@ Purpose   : Load the Bronze Layer tables from raw CSV files into the bronze sche
 
 Layer     : Bronze (raw ingestion layer of the data warehouse)
 
-Usage     :  CALL SP_LOAD_BRONZE();
+Usage     :  CALL LOAD_BRONZE();
 ********************************************************************************************/
 
 
