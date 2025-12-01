@@ -6,7 +6,7 @@ Script Purpose:
     This stored procedure performs the ETL (Extract, Transform, Load) process to 
     populate the 'silver' schema tables from the 'bronze' schema.
 	Actions Performed:
-		- Create OR REPLACES Silver tables.
+		- Truncates and Inserts Into Silver tables.
 		- Inserts transformed and cleansed data from Bronze into Silver tables.
 		
 Parameters:
@@ -19,7 +19,7 @@ CALL BUILD_SILVER();
 ===============================================================================
 */
 
-CREATE OR REPLACE PROCEDURE BUILD_SILVER()
+CREATE OR REPLACE PROCEDURE SP_BUILD_SILVER()
 RETURNS STRING
 LANGUAGE SQL
 AS
@@ -27,9 +27,11 @@ $$
 BEGIN
 
     ----------------------------------------------------------------
-    -- SILVER.STG_ORDERS
+    -- STG_ORDERS
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_ORDERS AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_ORDERS;
+
+    INSERT INTO MF_DWH.SILVER.STG_ORDERS
     SELECT
         TRY_TO_NUMBER(ORDERID)                        AS ORDER_ID,
         NULLIF(TRIM(ORDERREFERENCE), '')              AS ORDER_REFERENCE,
@@ -82,9 +84,11 @@ BEGIN
     WHERE ORDERID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_ORDERLINES
+    -- STG_ORDERLINES
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_ORDERLINES AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_ORDERLINES;
+
+    INSERT INTO MF_DWH.SILVER.STG_ORDERLINES
     SELECT
         TRY_TO_NUMBER(ORDERLINEID)               AS ORDER_LINE_ID,
         TRY_TO_NUMBER(ORDERLINEORDERID)          AS ORDER_ID,
@@ -108,9 +112,11 @@ BEGIN
     WHERE ORDERLINEID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_PRODUCT
+    -- STG_PRODUCT
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_PRODUCT AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_PRODUCT;
+
+    INSERT INTO MF_DWH.SILVER.STG_PRODUCT
     SELECT
         PRODUCTID                                  AS PRODUCT_ID,
         PRODUCTTYPE                                AS PRODUCT_TYPE,
@@ -178,9 +184,11 @@ BEGIN
     WHERE PRODUCTID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_PRODUCTSTOCKS
+    -- STG_PRODUCTSTOCKS
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_PRODUCTSTOCKS AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_PRODUCTSTOCKS;
+
+    INSERT INTO MF_DWH.SILVER.STG_PRODUCTSTOCKS
     SELECT
         STOCKID                 AS STOCK_ID,
         STOCKPRODUCTID          AS PRODUCT_ID,
@@ -201,9 +209,11 @@ BEGIN
     WHERE STOCKID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_PRODUCT_OPTIONS
+    -- STG_PRODUCT_OPTIONS
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_PRODUCT_OPTIONS AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_PRODUCT_OPTIONS;
+
+    INSERT INTO MF_DWH.SILVER.STG_PRODUCT_OPTIONS
     SELECT
         PRODUCTOPTIONID                     AS PRODUCT_OPTION_ID,
         PRODUCTPACKAGEID                    AS PACKAGE_ID,
@@ -228,9 +238,11 @@ BEGIN
     WHERE PRODUCTOPTIONID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_USERS (no passwords / tokens)
+    -- STG_USERS
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_USERS AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_USERS;
+
+    INSERT INTO MF_DWH.SILVER.STG_USERS
     SELECT
         USERSID                         AS USER_ID,
         NULLIF(TRIM(USERSNAME), '')     AS FIRST_NAME,
@@ -263,14 +275,15 @@ BEGIN
         USERSDELIVERYLOCATIONID         AS DELIVERY_LOCATION_ID,
         USERSDOB                        AS DATE_OF_BIRTH,
         ORDERCOUNT                      AS ORDER_COUNT
-        -- PASSWORD / TOKENS intentionally excluded
     FROM MF_DWH.BRONZE.USERS
     WHERE USERSID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_ADDRESS
+    -- STG_ADDRESS
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_ADDRESS AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_ADDRESS;
+
+    INSERT INTO MF_DWH.SILVER.STG_ADDRESS
     SELECT
         TRY_TO_NUMBER(ADDRESSID)                     AS ADDRESS_ID,
         TRY_TO_NUMBER(ADDRESSUSERID)                 AS USER_ID,
@@ -296,9 +309,11 @@ BEGIN
     WHERE ADDRESSID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_COUNTRY
+    -- STG_COUNTRY
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_COUNTRY AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_COUNTRY;
+
+    INSERT INTO MF_DWH.SILVER.STG_COUNTRY
     SELECT
         TRY_TO_NUMBER(COUNTRYID)              AS COUNTRY_ID,
         NULLIF(TRIM(COUNTRYNAME), '')         AS COUNTRY_NAME,
@@ -311,9 +326,11 @@ BEGIN
     WHERE COUNTRYID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_STATES
+    -- STG_STATES
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_STATES AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_STATES;
+
+    INSERT INTO MF_DWH.SILVER.STG_STATES
     SELECT
         TRY_TO_NUMBER(STATESID)          AS STATE_ID,
         NULLIF(TRIM(STATESNAME), '')     AS STATE_NAME,
@@ -324,9 +341,11 @@ BEGIN
     WHERE STATESID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_DISTRICTS
+    -- STG_DISTRICTS
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_DISTRICTS AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_DISTRICTS;
+
+    INSERT INTO MF_DWH.SILVER.STG_DISTRICTS
     SELECT
         TRY_TO_NUMBER(DISTRICTSID)             AS DISTRICT_ID,
         NULLIF(TRIM(DISTRICTSNAME), '')        AS DISTRICT_NAME,
@@ -337,9 +356,11 @@ BEGIN
     WHERE DISTRICTSID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_DELIVERY_LOCATION
+    -- STG_DELIVERY_LOCATION
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_DELIVERY_LOCATION AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_DELIVERY_LOCATION;
+
+    INSERT INTO MF_DWH.SILVER.STG_DELIVERY_LOCATION
     SELECT
         TRY_TO_NUMBER(DELIVERYLOCATIONID)               AS DELIVERY_LOCATION_ID,
         TRY_TO_NUMBER(DELIVERYLOCATIONSUPPLIERID)       AS SUPPLIER_ID,
@@ -355,9 +376,11 @@ BEGIN
     WHERE DELIVERYLOCATIONID IS NOT NULL;
 
     ----------------------------------------------------------------
-    -- SILVER.STG_DELIVERY_SLOT
+    -- STG_DELIVERY_SLOT
     ----------------------------------------------------------------
-    CREATE OR REPLACE TABLE MF_DWH.SILVER.STG_DELIVERY_SLOT AS
+    TRUNCATE TABLE MF_DWH.SILVER.STG_DELIVERY_SLOT;
+
+    INSERT INTO MF_DWH.SILVER.STG_DELIVERY_SLOT
     SELECT
         TRY_TO_NUMBER(DELIVERYSLOTID)          AS DELIVERY_SLOT_ID,
         NULLIF(TRIM(DELIVERYSLOTDESCRIPTION), '') AS DESCRIPTION,
@@ -372,7 +395,11 @@ BEGIN
     FROM MF_DWH.BRONZE.DELIVERY_SLOT
     WHERE DELIVERYSLOTID IS NOT NULL;
 
-    RETURN 'Silver layer (STG_*) tables built and cleaned successfully';
+    RETURN 'Silver STG tables truncated and reloaded successfully';
 
 END;
 $$;
+
+
+
+
