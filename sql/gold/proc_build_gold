@@ -317,11 +317,11 @@ BEGIN
         l.LINE_NET_AMOUNT,
         l.POINTS_GAINED
     FROM MF_DWH.SILVER.STG_ORDERLINES l
-    JOIN MF_DWH.SILVER.STG_ORDERS o     -- inner join: only keep lines with a valid order
-        ON l.ORDER_ID = o.ORDER_ID
-    WHERE o.ORDER_DATE IS NOT NULL
-      AND o.USER_ID IS NOT NULL;
-
+LEFT JOIN MF_DWH.SILVER.STG_ORDERS o
+    ON o.ORDER_ID = l.ORDER_ID
+LEFT JOIN MF_DWH.SILVER.STG_USERS u
+    ON u.USER_ID = o.USER_ID
+WHERE l.ORDER_LINE_ID IS NOT NULL;
     RETURN 'Gold layer built successfully';
 
 END;
