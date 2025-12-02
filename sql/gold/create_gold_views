@@ -1,0 +1,69 @@
+CREATE OR REPLACE PROCEDURE SP_CREATE_GOLD_VIEWS()
+RETURNS STRING
+LANGUAGE SQL
+AS
+$$
+BEGIN
+
+    ----------------------------------------------------------------
+    -- VW_CUSTOMER_PRODUCT_SALES
+    -- Line-level sales with date, customer and product context
+    ----------------------------------------------------------------
+    CREATE OR REPLACE VIEW MF_DWH.GOLD.VW_CUSTOMER_PRODUCT_SALES AS
+    SELECT
+        f.ORDER_LINE_ID,
+        f.ORDER_ID,
+
+        f.PRODUCT_ID,
+        p.PRODUCT_NAME,
+        p.PRODUCT_TYPE,
+        p.UOM,
+
+        f.UNIT_PRICE,
+        f.QTY,
+        f.LINE_AMOUNT,
+        f.LINE_NET_AMOUNT,
+        f.POINTS_GAINED,
+
+        f.STORE_ID,
+    FROM MF_DWH.GOLD.FACT_ORDERLINES f
+    LEFT JOIN MF_DWH.GOLD.DIM_DATE d
+        ON f.ORDER_DATE_KEY = d.DATE_KEY
+    LEFT JOIN MF_DWH.GOLD.DIM_CUSTOMER c
+        ON f.CUSTOMER_ID = c.CUSTOMER_ID
+    LEFT JOIN MF_DWH.GOLD.DIM_PRODUCT p
+        ON f.PRODUCT_ID = p.PRODUCT_ID
+    WHERE f.ORDER_LINE_ID IS NOT NULL
+      AND f.PRODUCT_ID   IS NOT NULL;
+
+    ----------------------------------------------------------------
+    -- VW_TOP_PRODUCTS
+    -- Product performance summary (qty, revenue, orders)
+    ----------------------------------------------------------------
+    CREATE OR REPLACE VIEW MF_DWH.GOLD.VW_TOP_PRODUCTS AS
+    SELECT
+        f.PRODUCT_ID,
+        p.PRODUCT_NAME,
+        p.PRODUCT_TYPE,
+        p.UOM,
+
+        SUM(f.QTY)                 AS TOTAL_QTY,
+        SUM(f.LINE_NET_AMOUNT)     AS TOTAL_REVENUE,
+        COUNT(DISTINCT f.ORDER_ID) AS ORDER_COUNT,
+
+    FROM MF_DWH.GOLD.FACT_ORDERLINES f
+    LEFT JOIN MF_DWH.GOLD.DIM_PRODUCT p
+        ON f.PRODUCT_ID = p.PRODUCT_ID
+    LEFT JOIN MF_DWH.GOLD.DIM_DATE d
+        ON f.ORDER_DATE_KEY = d.DATE_KEY
+    WHERE f.PRODUCT_ID IS NOT NULL
+    GROUP BY
+        f.PRODUCT_ID,
+        p.PRODUCT_NAME,
+        p.PRODUCT_TYPE,
+        p.UOM;
+
+    RETURN 'Gold views (2) created successfully';
+
+END;
+$$;
