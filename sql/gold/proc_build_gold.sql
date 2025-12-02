@@ -307,9 +307,12 @@ BEGIN
     INSERT INTO MF_DWH.GOLD.FACT_ORDERLINES (
         ORDER_LINE_ID,
         ORDER_ID,
+        ORDER_DATE_KEY,
+        CUSTOMER_ID,
         PRODUCT_ID,
         PRODUCT_OPTION_ID,
         STORE_ID,
+        DELIVERY_SLOT_ID,
         UNIT_PRICE,
         QTY,
         LINE_AMOUNT,
@@ -320,11 +323,15 @@ BEGIN
         l.ORDER_LINE_ID,
         l.ORDER_ID,
 
+        CASE WHEN o.ORDER_DATE IS NOT NULL
+             THEN TO_NUMBER(TO_CHAR(o.ORDER_DATE, 'YYYYMMDD'))
+        END                                           AS ORDER_DATE_KEY,
+
         o.USER_ID                                     AS CUSTOMER_ID,
         l.PRODUCT_ID,
         l.PRODUCT_OPTION_ID,
         1                                             AS STORE_ID,         -- <- force 1
-
+        o.DELIVERY_SLOT_ID,
         l.UNIT_PRICE,
         l.QTY,
         l.LINE_AMOUNT,
@@ -336,6 +343,10 @@ BEGIN
     WHERE l.ORDER_LINE_ID IS NOT NULL;   -- ONLY essential filter
 
     RETURN 'Gold layer (DIMs + FACTs) built successfully';
+
+END;
+$$;
+
 
 END;
 $$;
